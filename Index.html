@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yardie Wisdom Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Exo+2:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-light: #f0f8ff;
+      --text-light: #003366;
+      --bg-dark: #050811;
+      --text-dark: #a0c8ff;
+      --primary: #00a8ff;
+      --primary-dark: #0077cc;
+      --accent: #ff6b81;
+      --accent-dark: #ff4757;
+      --star-color: rgba(0, 0, 0, 0.8);
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #f0f8ff 0%, #d1e7ff 100%);
+      color: var(--text-light);
+    }
+
+    body.dark {
+      background: radial-gradient(circle at top left, #050811, #000014);
+      color: var(--text-dark);
+      --star-color: rgba(255, 255, 255, 0.8);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Exo 2', 'Orbitron', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      transition: background 0.5s ease, color 0.5s ease;
+      position: relative;
+    }
+
+    /* Welcome Animation */
+    .welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f1624 0%, #0a1128 100%);
+      z-index: 1000;
+      animation: fadeOut 1s ease forwards 3s;
+    }
+
+    .welcome-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5rem;
+      color: #00e5ff;
+      text-shadow: 
+        0 0 10px #00e5ff,
+        0 0 20px #00e5ff;
+      margin-bottom: 2rem;
+      animation: pulse 2s infinite;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.5rem;
+      color: #a0c8ff;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.5s;
+    }
+
+    /* Stars Animation */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .star {
+      position: absolute;
+      background-color: var(--star-color);
+      border-radius: 50%;
+      animation: twinkle var(--duration, 5s) infinite ease-in-out;
+      opacity: var(--opacity, 0.8);
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 3rem auto;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow:
+        0 0 20px rgba(0, 168, 255, 0.3),
+        inset 0 0 40px rgba(0, 168, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 168, 255, 0.2);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 3.5s;
+    }
+
+    body.dark .container {
+      background: rgba(5, 10, 25, 0.75);
+      box-shadow:
+        0 0 20px rgba(0, 229, 255, 0.3),
+        inset 0 0 40px rgba(0, 46, 77, 0.5);
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: var(--primary);
+      text-shadow:
+        0 0 10px rgba(0, 168, 255, 0.5),
+        0 0 20px rgba(0, 168, 255, 0.3);
+    }
+
+    body.dark h1 {
+      color: #00e5ff;
+      text-shadow:
+        0 0 10px #00e5ff,
+        0 0 20px #00e5ff;
+    }
+
+    .button {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      border-radius: 25px;
+      box-shadow:
+        0 0 15px rgba(0, 168, 255, 0.5),
+        0 0 30px rgba(255, 107, 129, 0.3);
+      transition: all 0.3s ease;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow:
+        0 0 25px rgba(0, 168, 255, 0.7),
+        0 0 45px rgba(255, 107, 129, 0.5);
+    }
+
+    .button::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 45%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 55%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+
+    .quote-box {
+      margin-top: 2rem;
+      padding: 2rem;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 168, 255, 0.3);
+      background: rgba(0, 168, 255, 0.1);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 168, 255, 0.2);
+      font-size: 1.4rem;
+      font-weight: 600;
+      line-height: 1.5;
+      user-select: text;
+    }
+
+    body.dark .quote-box {
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      background: rgba(0, 229, 255, 0.05);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    }
+
+    #author {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--accent);
+      user-select: text;
+    }
+
+    body.dark #author {
+      color: #ff6b81;
+    }
+
+    .actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .action-button {
+      background: var(--accent);
+      border: none;
+      padding: 0.7rem 1.5rem;
+      color: white;
+      font-weight: 700;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 107, 129, 0.5);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .action-button:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 0 20px rgba(255, 71, 87, 0.7);
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Options Dropdown */
+    .options {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      min-width: 160px;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      z-index: 100;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark .dropdown-content {
+      background-color: rgba(0, 10, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .dropdown-content button {
+      background: none;
+      color: var(--text-light);
+      padding: 12px 16px;
+      border: none;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    body.dark .dropdown-content button {
+      color: var(--text-dark);
+    }
+
+    .dropdown-content button:hover {
+      background-color: rgba(0, 168, 255, 0.2);
+      color: var(--primary);
+    }
+
+    /* Ad Space */
+    .ad {
+      margin: 2rem auto;
+      height: 120px;
+      background: linear-gradient(90deg, rgba(0, 51, 85, 0.7), rgba(0, 85, 170, 0.7));
+      color: #a0d6ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-style: italic;
+      border-radius: 15px;
+      box-shadow:
+        inset 0 0 15px rgba(0, 119, 204, 0.5),
+        0 0 30px rgba(0, 85, 170, 0.3);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      user-select: none;
+      border: 1px solid rgba(0, 119, 204, 0.3);
+      backdrop-filter: blur(5px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ad::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      animation: adShine 3s infinite;
+    }
+
+    @keyframes adShine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Sound Effects */
+    .sound-effect {
+      display: none;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .welcome-title {
+        font-size: 2.5rem;
+      }
+      
+      .container {
+        margin: 1.5rem;
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .button {
+        padding: 0.8rem 1.8rem;
+        font-size: 1.1rem;
+      }
+      
+      .quote-box {
+        padding: 1.5rem;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Welcome Screen -->
+  <div class="welcome-screen">
+    <div class="welcome-title">Welcome to Yardie Wisdom Generator</div>
+    <div class="welcome-subtitle">Jamaican Proverbs & Raw Sayings</div>
+  </div>
+
+  <!-- Stars Background -->
+  <div class="stars" id="stars-container"></div>
+
+  <!-- Options Dropdown -->
+  <div class="options">
+    <div class="dropdown">
+      <button class="action-button" id="options-button">Options</button>
+      <div class="dropdown-content">
+        <button onclick="toggleTheme()">Toggle Light/Dark</button>
+        <button onclick="toggleSound()">Toggle Sound</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Yardie Wisdom</h1>
+    <button class="button" id="main-button" onclick="handleWisdom()">Push di Button</button>
+    <div class="ad" id="ad-slot-1" style="display:none;">
+      <div class="ad-content">Sponsored by</div>
+    </div>
+    <div class="quote-box hidden" id="quote-box">
+      <p id="quote"></p>
+      <div class="actions">
+        <button class="action-button" id="author-button" onclick="showAdThenAction('author')">Who Say Dat?</button>
+        <button class="action-button" id="read-button" onclick="showAdThenAction('read')">Read Aloud</button>
+        <button class="action-button" id="share-button" onclick="showAdThenAction('share')">Share</button>
+      </div>
+      <p id="author" class="hidden"></p>
+    </div>
+  </div>
+
+  <!-- Sound Effects -->
+  <audio class="sound-effect" id="button-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
+  <audio class="sound-effect" id="theme-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3"></audio>
+  <audio class="sound-effect" id="ad-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
+
+  <script>
+    // Create stars for background
+    function createStars() {
+      const container = document.getElementById('stars-container');
+      const count = 100;
+      
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        // Random properties
+        const size = Math.random() * 3;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const duration = Math.random() * 10 + 5;
+        const delay = Math.random() * 5;
+        const opacity = Math.random() * 0.8 + 0.2;
+        
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.left = `${posX}%`;
+        star.style.top = `${posY}%`;
+        star.style.animationDelay = `${delay}s`;
+        star.style.setProperty('--duration', `${duration}s`);
+        star.style.setProperty('--opacity', opacity);
+        
+        container.appendChild(star);
+      }
+    }
+    
+    // Initialize stars
+    createStars();
+
+    // Sound management
+    let soundEnabled = true;
+    function playSound(id) {
+      if (!soundEnabled) return;
+      const sound = document.getElementById(id);
+      sound.currentTime = 0;
+      sound.play().catch(e => console.log("Sound playback prevented:", e));
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      playSound('button-sound');
+      const button = document.querySelector('.dropdown-content button:last-child');
+      button.textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+      localStorage.setItem('soundEnabled', soundEnabled);
+    }
+
+    // Quotes data
+    const quotes = [
+      { text: "Nuh put off today fi tomorrow.", author: "Jamaican Proverb" },
+      { text: "Every mikkle mek a mukkle.", author: "Old Timer" },
+      { text: "Wanti wanti cyaan get it, and getti getti nuh want it.", author: "Granny Wisdom" },
+      { text: "Chicken merry, hawk deh near.", author: "Yardie Elder" },
+      { text: "If yuh want good, yuh nose haffi run.", author: "Jamaican Proverb" },
+      { text: "Puss and dog nuh have di same luck.", author: "Granny Wisdom" },
+      { text: "What sweet nanny goat a go run him belly.", author: "Old Timer" },
+      { text: "Time longer than rope.", author: "Yardie Elder" },
+      { text: "Trouble nuh set like rain.", author: "Jamaican Proverb" },
+      { text: "Empty barrel mek di most noise.", author: "Granny Wisdom" },
+      { text: "Di higher monkey climb, di more him expose.", author: "Jamaican Proverb" },
+      { text: "Every day bucket go a well, one day di bottom must drop out.", author: "Old Timer" },
+      { text: "Jackass say di worl nuh level.", author: "Granny Wisdom" },
+      { text: "Yuh cyaan hear, yuh will feel.", author: "Jamaican Proverb" },
+      { text: "If yuh live inna glass house, don't throw stone.", author: "Jamaican Proverb" },
+      { text: "Man must bruk bread before him bruk bottle.", author: "Yardie Elder" },
+      { text: "Mek hay while di sun shine.", author: "Old Timer" },
+      { text: "Nuh mek yuh left hand know what yuh right hand a do.", author: "Granny Wisdom" },
+      { text: "Di same knife stick sheep, stick goat.", author: "Jamaican Proverb" },
+      { text: "Plantain nuh ripe same time.", author: "Yardie Elder" }, 
+      { text: "Rassclaat storm bring di clearest sky.", author: "Dillon Bailey" },
+      { text: "Bloodclaat silence talk louder dan crowd.", author: "Dillon Bailey" },
+      { text: "Every pussyclaat wound mek mi sharper.", author: "Dillon Bailey" },
+      { text: "Rassclaat fight neva scare real warrior.", author: "Dillon Bailey" },
+      { text: "Mi born fi walk through bloodclaat fire and still cool.", author: "Dillon Bailey" },   
+      { text: "Life nah sweet unless it taste a likkle pussyclaat salt.", author: "Dillon Bailey" },
+      { text: "Mi dreams too big fi rassclaat small mind.", author: "Dillon Bailey" },
+      { text: "Dem try fi box mi in, mi buss out di bloodclaat frame.", author: "Dillon Bailey" },
+      { text: "Mi spirit too free fi rassclaat chains hold mi.", author: "Dillon Bailey" },
+      { text: "Mi nah run from darkness—mi a di pussyclaat light.", author: "Dillon Bailey" }
+];
+    // DOM elements
+    const quoteBox = document.getElementById('quote-box');
+    const quoteText = document.getElementById('quote');
+    const authorText = document.getElementById('author');
+    const adSlot = document.getElementById('ad-slot-1');
+    const mainButton = document.getElementById('main-button');
+    let currentQuoteIndex = null;
+    let isReading = false;
+
+    // Get random quote
+    function getRandomQuote() {
+      return Math.floor(Math.random() * quotes.length);
+    }
+
+    // Main button handler
+    function handleWisdom() {
+      playSound('button-sound');
+      
+      // Show ad first
+      adSlot.style.display = 'flex';
+      playSound('ad-sound');
+      quoteBox.classList.add('hidden');
+      authorText.classList.add('hidden');
+      authorText.textContent = '';
+      currentQuoteIndex = null;
+      mainButton.disabled = true;
+
+      // After ad, show quote
+      setTimeout(() => {
+        adSlot.style.display = 'none';
+        currentQuoteIndex = getRandomQuote();
+        quoteText.textContent = quotes[currentQuoteIndex].text;
+        quoteBox.classList.remove('hidden');
+        mainButton.textContent = "Read Anada One";
+        mainButton.disabled = false;
+      }, 3000);
+    }
+
+    // Show ad before action
+    function showAdThenAction(action) {
+      playSound('button-sound');
+      
+      // Show ad first
+      adSlot.style.display = 'flex';
+      playSound('ad-sound');
+      
+      // Disable buttons during ad
+      document.querySelectorAll('.action-button').forEach(btn => {
+        btn.disabled = true;
+      });
+
+      // After ad, perform action
+      setTimeout(() => {
+        adSlot.style.display = 'none';
+        
+        // Re-enable buttons
+        document.querySelectorAll('.action-button').forEach(btn => {
+          btn.disabled = false;
+        });
+
+        // Perform the requested action
+        switch(action) {
+          case 'author':
+            showAuthor();
+            break;
+          case 'read':
+            readAloud();
+            break;
+          case 'share':
+            shareQuote();
+            break;
+        }
+      }, 3000);
+    }
+
+    // Show author
+    function showAuthor() {
+      if (currentQuoteIndex === null) return;
+      authorText.textContent = '— ' + quotes[currentQuoteIndex].author;
+      authorText.classList.remove('hidden');
+      playSound('button-sound');
+    }
+
+    // Read aloud
+    function readAloud() {
+      if (currentQuoteIndex === null || isReading) return;
+
+      const utterance = new SpeechSynthesisUtterance(quotes[currentQuoteIndex].text);
+      utterance.lang = 'en-JM'; // Jamaican English
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      isReading = true;
+      
+      // Visual feedback while speaking
+      const readButton = document.getElementById('read-button');
+      readButton.textContent = "Reading...";
+      readButton.style.boxShadow = "0 0 15px var(--accent)";
+      
+      utterance.onend = () => {
+        isReading = false;
+        readButton.textContent = "Read Aloud";
+        readButton.style.boxShadow = "";
+      };
+      
+      speechSynthesis.speak(utterance);
+    }
+
+    // Share quote
+    function shareQuote() {
+      if (currentQuoteIndex === null) return;
+      playSound('button-sound');
+
+      const textToShare = `"${quotes[currentQuoteIndex].text}" — ${quotes[currentQuoteIndex].author}\n\nShared via Yardie Wisdom Generator`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Yardie Wisdom',
+          text: textToShare,
+          url: window.location.href
+        }).catch(console.error);
+      } else {
+        // Fallback for browsers without Web Share API
+        const shareButton = document.getElementById('share-button');
+        const originalText = shareButton.textContent;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(textToShare).then(() => {
+          shareButton.textContent = "Copied!";
+          setTimeout(() => {
+            shareButton.textContent = originalText;
+          }, 2000);
+        }).catch(() => {
+          alert("Share not supported. Here's the text to copy:\n\n" + textToShare);
+        });
+      }
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+      playSound('theme-sound');
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    }
+
+    // Load saved preferences
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load theme preference
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.body.classList.add(savedTheme);
+      
+      // Load sound preference
+      const savedSound = localStorage.getItem('soundEnabled');
+      if (savedSound !== null) {
+        soundEnabled = savedSound === 'true';
+      }
+      
+      // Set options button text
+      const soundButton = document.querySelector('.dropdown-content button:last-child');
+      soundButton.textContent = soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+    });
+  </script>
+</body>
+</html>
